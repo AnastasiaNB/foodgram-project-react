@@ -5,6 +5,5 @@ from django.views.generic import TemplateView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('food.urls')),
-    path('redoc/', TemplateView.as_view(template_name='redoc.html'))
+    path('api/', include('food.urls')),
 ]
