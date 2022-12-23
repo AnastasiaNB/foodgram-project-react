@@ -42,7 +42,7 @@ class Amount(models.Model):
 
 
 class RecipeTags(models.Model):
-    recipe = models.ForeignKey(to=Recipe, on_delete=models.CASCADE, related_name='tags', null=True)
+    recipe = models.ForeignKey(to=Recipe, on_delete=models.CASCADE, null=True)
     tag = models.ForeignKey(to=Tag, on_delete=models.CASCADE, null=True)
 
 
@@ -51,7 +51,11 @@ class Follow(models.Model):
     following = models.ForeignKey(to=User, on_delete=models.SET_NULL, related_name='followers', null=True)
 
 
-class Favourites(models.Model):
+class Favorites(models.Model):
     user = models.ForeignKey(to=User, on_delete=models.CASCADE, related_name='favourites')
+    recipe = models.ForeignKey(to=Recipe, on_delete=models.CASCADE)
+
+class ShoppingCart(models.Model):
+    user = models.ForeignKey(to=User, on_delete=models.CASCADE, related_name='shopping_cart')
     recipe = models.ForeignKey(to=Recipe, on_delete=models.CASCADE)
 
