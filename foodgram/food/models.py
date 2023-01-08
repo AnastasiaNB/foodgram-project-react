@@ -33,7 +33,7 @@ class Amount(models.Model):
 
 class Favorites(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, related_name='favorite')
-    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, null=True)
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, null=True, related_name='in_favorites')
 
 class ShoppingCart(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='shopping_cart')

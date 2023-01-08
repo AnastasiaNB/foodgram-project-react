@@ -12,6 +12,7 @@ from rest_framework import status, views
 from food.models import Recipe, Ingredient, Tag, Favorites, ShoppingCart, Amount
 from users.models import User, Follow
 from .pagination import CustomPagination
+from .filters import RecipeFilter, IngredientFilter
 from .permissions import IsAuthorOrReadOnly
 from .serializers import (
     RecipePOSTSerializer,
@@ -39,7 +40,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthorOrReadOnly]
     pagination_class = CustomPagination
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ('author', 'tags', 'is_favorited', 'is_in_shopping_cart')
+    filterset_class = RecipeFilter
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
@@ -70,8 +71,8 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     permission_classes = [AllowAny, ]
-    filter_backends = (filters.SearchFilter, )
-    search_fields = ('name',) 
+    filter_backends = [IngredientFilter]
+    search_fields = ('^name',)
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
