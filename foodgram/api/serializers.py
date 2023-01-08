@@ -64,7 +64,7 @@ class AmountSerializer(serializers.ModelSerializer):
         return ingredient.name
 
     def to_representation(self, obj):
-        self.fields.pop('recipe')
+        # self.fields.pop('recipe')
         representation = super().to_representation(obj)
         representation['amount'] = obj.amount
         return representation
@@ -245,7 +245,7 @@ class FollowCreateSerializer(serializers.ModelSerializer):
     def to_representation(self, obj):
         request = self.context.get('request')
         context = {'request': request}
-        serializer = FollowSerializer(obj, context=context)
+        serializer = FollowSerializer(obj.user, context=context)
         return serializer.data
 
     def validate(self, data):

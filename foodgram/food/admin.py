@@ -11,7 +11,10 @@ class TagAdmin(admin.ModelAdmin):
 
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
-    list_display = ('id', 'author', 'name', 'text')
+    list_display = ('id', 'author', 'name', 'text', 'get_ingredients')
+
+    def get_ingredients(self, obj):
+        return [ingredient.name for ingredient in obj.ingredients.all()]
 
 @admin.register(Amount)
 class AmountAdmin(admin.ModelAdmin):
