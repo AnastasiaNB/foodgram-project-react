@@ -64,7 +64,7 @@ WSGI_APPLICATION = 'foodgram.wsgi.application'
 ALLOWED_HOSTS = ['*']
 
 
-# Database
+# Database   
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
 DATABASES = {
