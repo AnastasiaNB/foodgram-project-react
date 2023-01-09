@@ -1,8 +1,10 @@
+import json
 import os
 from pathlib import Path
-import json
+
 from django.core.management.base import BaseCommand
 from food.models import Ingredient, Tag
+
 from foodgram.settings import BASE_DIR
 
 DATA_DIR = os.path.join(BASE_DIR, 'data')

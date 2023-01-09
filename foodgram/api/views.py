@@ -1,37 +1,30 @@
-from rest_framework import viewsets, filters
-from rest_framework.decorators import action
-from rest_framework.response import Response
-from django_filters.rest_framework import DjangoFilterBackend
 from django.http import HttpResponse
-from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly, IsAuthenticated
-from djoser.views import UserViewSet
 from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
 from djoser.serializers import SetPasswordSerializer
-from rest_framework import status, views
+from djoser.views import UserViewSet
+from food.models import (Amount, Favorites, Ingredient, Recipe, ShoppingCart,
+                         Tag)
+from rest_framework import status, views, viewsets
+from rest_framework.decorators import action
+from rest_framework.permissions import (AllowAny, IsAuthenticated,
+                                        IsAuthenticatedOrReadOnly)
+from rest_framework.response import Response
 
-from food.models import Recipe, Ingredient, Tag, Favorites, ShoppingCart, Amount
-from users.models import User, Follow
+from .filters import IngredientFilter, RecipeFilter
 from .pagination import CustomPagination
-from .filters import RecipeFilter, IngredientFilter
 from .permissions import IsAuthorOrReadOnly
-from .serializers import (
-    RecipePOSTSerializer,
-    RecipeGETSerializer,
-    IngredientSerializer,
-    TagSerializer,
-    FavoriteSerializer,
-    ShoppingCartSerializer,
-    CustomUserSerializer,
-    CustomCreateUserSerializer,
-    FollowSerializer,
-    FollowCreateSerializer
-    )
+from .serializers import (CustomCreateUserSerializer, CustomUserSerializer,
+                          FavoriteSerializer, FollowCreateSerializer,
+                          FollowSerializer, IngredientSerializer,
+                          RecipeGETSerializer, RecipePOSTSerializer,
+                          ShoppingCartSerializer, TagSerializer)
+from users.models import Follow, User
 
-class PostDeleteViewSet(
-    viewsets.mixins.CreateModelMixin,
-    viewsets.mixins.DestroyModelMixin,
-    viewsets.GenericViewSet
-    ):
+
+class PostDeleteViewSet(viewsets.mixins.CreateModelMixin,
+                        viewsets.mixins.DestroyModelMixin,
+                        viewsets.GenericViewSet):
     pass
 
 
@@ -45,25 +38,29 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return RecipeGETSerializer
-        else:
-            return RecipePOSTSerializer
-            
-    @action(detail=False, methods=['get'], permission_classes = [IsAuthenticated])
+        return RecipePOSTSerializer
+
+    @action(
+        detail=False,
+        methods=['get'],
+        permission_classes=[IsAuthenticated])
     def download_shopping_cart(self, request):
         final_list = {}
         ingredients = Amount.objects.filter(
-            recipe__in_shopping_cart__user=request.user)
+            recipe__in_shopping_cart__user=request.user
+            ).select_related('ingredient').annotate(
+                name='ingredient__name',
+                measurement_unit='ingredient__measurement_units',
+                amount='amount')
         for item in ingredients:
-            name = item.ingredient.name
-            if name not in final_list:
-                final_list[name] = {
-                    'measurement_unit': item.ingredient.measurement_unit,
-                    'amount': item.amount
-                }
-            else:
-                final_list[name]['amount'] += item.amount
-        response = HttpResponse(final_list.items(), content_type='application/text charset=utf-8')
-        response['Content-Disposition'] = 'attachment; filename="shopping_cart.txt"'
+            if item.name in final_list:
+                item.amount += item.amount
+        response = HttpResponse(
+            final_list.items(),
+            content_type='application/text charset=utf-8')
+        response[
+            'Content-Disposition'
+            ] = 'attachment; filename="shopping_cart.txt"'
         return response
 
 
@@ -136,13 +133,16 @@ class ShoppingCartViewSet(PostDeleteViewSet):
 
     @action(methods=('delete',), detail=True)
     def delete(self, request, recipe_id):
-        get_object_or_404(ShoppingCart, user=request.user, recipe_id=recipe_id).delete()
+        get_object_or_404(
+            ShoppingCart,
+            user=request.user,
+            recipe_id=recipe_id).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class CustomUserViewSet(UserViewSet):
     queryset = User.objects.all()
-    permission_classes = [IsAuthenticatedOrReadOnly,]
+    permission_classes = [IsAuthenticatedOrReadOnly, ]
     pagination_class = CustomPagination
 
     def get_serializer_class(self):
@@ -155,9 +155,12 @@ class CustomUserViewSet(UserViewSet):
     @action(methods=['get'], detail=False, pagination_class=CustomPagination)
     def subscriptions(self, request):
         authors = User.objects.filter(following__follower=request.user)
-        serializer = FollowSerializer(authors, context={'request': request}, many=True)
+        serializer = FollowSerializer(
+            authors,
+            context={'request': request},
+            many=True)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
-        
+
 
 class FollowPostDeleteViewSet(views.APIView):
     permission_classes = [IsAuthenticated]
@@ -167,7 +170,9 @@ class FollowPostDeleteViewSet(views.APIView):
         user = get_object_or_404(User, id=id)
         follower = self.request.user
         data = {'follower': follower.id, 'user': user.id}
-        serializer = FollowCreateSerializer(data=data, context={'request': request})
+        serializer = FollowCreateSerializer(
+            data=data,
+            context={'request': request})
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(data=serializer.data, status=status.HTTP_201_CREATED)

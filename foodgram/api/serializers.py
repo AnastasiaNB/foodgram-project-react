@@ -1,9 +1,11 @@
-from rest_framework import serializers
-from djoser.serializers import UserCreateSerializer, UserSerializer, PasswordSerializer
+from djoser.serializers import (UserCreateSerializer,
+                                UserSerializer)
 from drf_extra_fields.fields import Base64ImageField
-from food.models import Recipe, Amount, Ingredient, Tag, Favorites, ShoppingCart
-from users.models import User, Follow
+from food.models import (Amount, Favorites, Ingredient, Recipe, ShoppingCart,
+                         Tag)
+from rest_framework import serializers
 
+from users.models import Follow, User
 
 
 class CustomCreateUserSerializer(UserCreateSerializer):
@@ -14,18 +16,8 @@ class CustomCreateUserSerializer(UserCreateSerializer):
             'email', 'id',
             'username', 'first_name',
             'last_name', 'password',
-            ) 
+            )
 
-    def create(self, data):
-        user = User.objects.create(
-            email=data['email'],
-            username=data['username'],
-            first_name=data['first_name'],
-            last_name=data['last_name']
-        )
-        user.set_password(data['password'])
-        user.save()
-        return user
 
 class CustomUserSerializer(UserSerializer):
     """Сериализатор для получения пользователей"""
@@ -33,7 +25,10 @@ class CustomUserSerializer(UserSerializer):
 
     class Meta:
         model = User
-        fields = ('email', 'id', 'username', 'first_name', 'last_name', 'is_subscribed') 
+        fields = (
+            'email', 'id',
+            'username', 'first_name',
+            'last_name', 'is_subscribed')
 
     def get_is_subscribed(self, obj):
         user = self.context.get('request').user
@@ -42,11 +37,13 @@ class CustomUserSerializer(UserSerializer):
         return Follow.objects.filter(user=user, follower=obj.id).exists()
 
 
-
 class AmountSerializer(serializers.ModelSerializer):
-    """Вспомогательный сериализатор для создания и отображения ингредиентов рецепта."""
+    """Вспомогательный сериализатор для создания
+     и отображения ингредиентов рецепта."""
     recipe = serializers.PrimaryKeyRelatedField(read_only=True)
-    id = serializers.PrimaryKeyRelatedField(source='ingredient', queryset=Ingredient.objects.all())
+    id = serializers.PrimaryKeyRelatedField(
+        source='ingredient',
+        queryset=Ingredient.objects.all())
     amount = serializers.IntegerField(write_only=True, min_value=1)
     measure_units = serializers.SerializerMethodField()
     name = serializers.SerializerMethodField()
@@ -64,7 +61,6 @@ class AmountSerializer(serializers.ModelSerializer):
         return ingredient.name
 
     def to_representation(self, obj):
-        # self.fields.pop('recipe')
         representation = super().to_representation(obj)
         representation['amount'] = obj.amount
         return representation
@@ -74,7 +70,9 @@ class RecipePOSTSerializer(serializers.ModelSerializer):
     """Серализатор для POST-запросов к адресу api/recipes/"""
     author = CustomUserSerializer(read_only=True)
     ingredients = AmountSerializer(many=True)
-    tags = serializers.PrimaryKeyRelatedField(many=True,queryset=Tag.objects.all())
+    tags = serializers.PrimaryKeyRelatedField(
+        many=True,
+        queryset=Tag.objects.all())
     image = Base64ImageField()
 
     class Meta:
@@ -85,18 +83,20 @@ class RecipePOSTSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         user = request.user
         if user.is_anonymous:
-           return False
-        return data  
+            return False
+        return data
 
     def create(self, data):
-        author = self.context.get('request').user 
+        author = self.context.get('request').user
         ingredients = data.pop('ingredients')
         tags = data.pop('tags')
         recipe = Recipe.objects.create(author=author, **data)
         recipe.tags.set(tags)
-        for ingerdient_amount in ingredients:
-            amount = ingerdient_amount['amount']
-            Amount.objects.create(recipe=recipe, ingredient=ingerdient_amount['ingredient'], amount=amount)
+        Amount.objects.bulk_create([Amount(
+                recipe=recipe,
+                ingredient=ingerdient_amount['ingredient'],
+                amount=ingerdient_amount['amount']
+                ) for ingerdient_amount in ingredients])
         recipe.save()
         return recipe
 
@@ -106,9 +106,11 @@ class RecipePOSTSerializer(serializers.ModelSerializer):
         obj.tags.clear()
         Amount.objects.filter(recipe=obj).delete()
         obj.tags.set(tags)
-        for ingerdient_amount in ingredients:
-            amount = ingerdient_amount['amount']
-            Amount.objects.create(recipe=obj, ingredient=ingerdient_amount['ingredient'], amount=amount)
+        Amount.objects.bulk_create([Amount(
+                recipe=obj,
+                ingredient=ingerdient_amount['ingredient'],
+                amount=ingerdient_amount['amount']
+                ) for ingerdient_amount in ingredients])
         obj.save()
         return super().update(obj, data)
 
@@ -149,12 +151,16 @@ class RecipeGETSerializer(serializers.ModelSerializer):
     def get_is_favorited(self, obj):
         if self.context.get('request').user.is_anonymous:
             return False
-        return Favorites.objects.filter(recipe=obj, user=self.context.get('request').user).exists()
+        return Favorites.objects.filter(
+            recipe=obj,
+            user=self.context.get('request').user).exists()
 
     def get_is_in_shopping_cart(self, obj):
         if self.context.get('request').user.is_anonymous:
             return False
-        return ShoppingCart.objects.filter(recipe=obj, user=self.context.get('request').user).exists()
+        return ShoppingCart.objects.filter(
+            recipe=obj,
+            user=self.context.get('request').user).exists()
 
 
 class IngredientSerializer(serializers.ModelSerializer):
@@ -169,7 +175,7 @@ class FavoriteSerializer(serializers.ModelSerializer):
     """Сериализатор для избранного"""
     id = serializers.ReadOnlyField(source='recipe.id',)
     name = serializers.ReadOnlyField(source='recipe.name',)
-    image = serializers.CharField(source='recipe.image',read_only=True,)
+    image = serializers.CharField(source='recipe.image', read_only=True,)
     cooking_time = serializers.ReadOnlyField(source='recipe.cooking_time',)
 
     class Meta:
@@ -189,7 +195,7 @@ class ShoppingCartSerializer(serializers.ModelSerializer):
     """Сериализатор для списка покупок"""
     id = serializers.ReadOnlyField(source='recipe.id',)
     name = serializers.ReadOnlyField(source='recipe.name',)
-    image = serializers.CharField(source='recipe.image',read_only=True,)
+    image = serializers.CharField(source='recipe.image', read_only=True,)
     cooking_time = serializers.ReadOnlyField(source='recipe.cooking_time',)
 
     class Meta:
@@ -210,6 +216,7 @@ class ShortRecipeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
         fields = ('id', 'name', 'image', 'cooking_time')
+
 
 class FollowSerializer(serializers.ModelSerializer):
     """Сериализатор для запросов к api/users/subscriptions/"""
@@ -232,9 +239,10 @@ class FollowSerializer(serializers.ModelSerializer):
         queryset = Recipe.objects.filter(author=obj)[:int(recipes_limit)]
         serializer = ShortRecipeSerializer(queryset, many=True)
         return serializer.data
-       
+
     def get_recipes_count(self, obj):
         return Recipe.objects.filter(author=obj).count()
+
 
 class FollowCreateSerializer(serializers.ModelSerializer):
 
@@ -260,12 +268,3 @@ class FollowCreateSerializer(serializers.ModelSerializer):
                 'Вы уже подписаны на этого пользователя'
             )
         return data
-
-
-
-
-
-
-
-
-
