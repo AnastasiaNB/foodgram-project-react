@@ -49,12 +49,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
         final_list = []
         ingredients = Amount.objects.filter(
             recipe__in_shopping_cart__user=request.user
-            ).select_related('ingredient', 'recipe').values(
-                'recipe__name', 'ingredient__measurement_unit').annotate(
+            ).select_related('ingredient').values(
+                'ingredient__name', 'ingredient__measurement_unit').annotate(
                     Sum('amount'))
         for item in ingredients:
             final_list.append(
-                f"{item['recipe__name']}, \
+                f"{item['ingredient__name']}, \
                     {item['amount__sum']}, \
                         {item['ingredient__measurement_unit']}")
         response = HttpResponse(
