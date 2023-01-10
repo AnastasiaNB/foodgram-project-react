@@ -32,5 +32,5 @@ Python Django Django REST Framework PostgreSQL JWT Nginx gunicorn Docker Docker-
 #### создания суперпользователя.
 - ```sudo docker-compose exec web python manage.py createsuperuser```
 #### Для проверки:
-ip сервера - 
+ip сервера - 51.250.72.46
 
