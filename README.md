@@ -29,6 +29,8 @@ Python Django Django REST Framework PostgreSQL JWT Nginx gunicorn Docker Docker-
 #### создания и применения миграций;
 - ```sudo docker-compose exec web python manage.py makemigrations```
 - ```sudo docker-compose exec web python manage.py migrate --noinput```
+#### для загрузки данных ингредиентов и тегов;
+- ```sudo docker-compose exec web python manage.py load_data```
 #### создания суперпользователя.
 - ```sudo docker-compose exec web python manage.py createsuperuser```
 #### Для проверки:
