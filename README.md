@@ -27,12 +27,12 @@ Python Django Django REST Framework PostgreSQL JWT Nginx gunicorn Docker Docker-
 #### Выполнить команды для сбора статики;
 - ```sudo docker-compose exec web python manage.py collectstatic --no-input```
 #### создания и применения миграций;
-- ```sudo docker-compose exec web python manage.py makemigrations```
-- ```sudo docker-compose exec web python manage.py migrate --noinput```
+- ```sudo docker-compose exec foodgram python manage.py makemigrations```
+- ```sudo docker-compose exec foodgram python manage.py migrate --noinput```
 #### для загрузки данных ингредиентов и тегов;
-- ```sudo docker-compose exec web python manage.py load_data```
+- ```sudo docker-compose exec foodgram python manage.py load_data```
 #### создания суперпользователя.
-- ```sudo docker-compose exec web python manage.py createsuperuser```
+- ```sudo docker-compose exec foodgram python manage.py createsuperuser```
 #### Для проверки:
 ip сервера - 51.250.72.46
 
