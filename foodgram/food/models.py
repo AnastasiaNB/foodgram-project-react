@@ -74,6 +74,10 @@ class Amount(models.Model):
         related_name='amount')
     amount = models.IntegerField()
 
+    class Meta:
+        verbose_name = 'Рецепт-ингредиент'
+        verbose_name_plural = 'Рецепты-ингредиенты'
+
 
 class Favorites(models.Model):
     user = models.ForeignKey(

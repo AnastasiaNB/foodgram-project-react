@@ -152,14 +152,15 @@ class CustomUserViewSet(UserViewSet):
             return CustomCreateUserSerializer
         return CustomUserSerializer
 
-    @action(methods=['get'], detail=False, pagination_class=CustomPagination)
+    @action(methods=['get'], detail=False)
     def subscriptions(self, request):
-        authors = User.objects.filter(following__follower=request.user)
+        authors = self.paginate_queryset(
+            User.objects.filter(following__follower=request.user))
         serializer = FollowSerializer(
             authors,
             context={'request': request},
             many=True)
-        return Response(data=serializer.data, status=status.HTTP_200_OK)
+        return self.get_paginated_response(serializer.data)
 
 
 class FollowPostDeleteViewSet(views.APIView):
