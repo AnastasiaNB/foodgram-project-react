@@ -1,6 +1,6 @@
 # foodgram-project-react
 
-[badge]:https://github.com/AnastasiaNB/foodgram-project-react/actions/workflows/main.yml/badge.svg
+![badge](https://github.com/AnastasiaNB/foodgram-project-react/actions/workflows/main.yml/badge.svg)
 
 ## Cтек технологий:
 Python Django Django REST Framework PostgreSQL JWT Nginx gunicorn Docker Docker-compose DockerHub GitHubActions Yandex.Cloud
