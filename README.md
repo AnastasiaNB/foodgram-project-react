@@ -25,12 +25,12 @@ Python Django Django REST Framework PostgreSQL JWT Nginx gunicorn Docker Docker-
 - ```sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o usr/local/bin/docker-compose```
 - ```sudo chmod +x /usr/local/bin/docker-compose```
 #### Выполнить команды для сбора статики;
-```sudo docker-compose exec web python manage.py collectstatic --no-input```
+- ```sudo docker-compose exec web python manage.py collectstatic --no-input```
 #### создания и применения миграций;
-```sudo docker-compose exec web python manage.py makemigrations```
-```sudo docker-compose exec web python manage.py migrate --noinput```
+- ```sudo docker-compose exec web python manage.py makemigrations```
+- ```sudo docker-compose exec web python manage.py migrate --noinput```
 #### создания суперпользователя.
-```sudo docker-compose exec web python manage.py createsuperuser```
+- ```sudo docker-compose exec web python manage.py createsuperuser```
 #### Для проверки:
 ip сервера - 
 
