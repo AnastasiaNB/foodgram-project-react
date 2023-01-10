@@ -46,8 +46,8 @@ jobs:
         key: ${{ secrets.SSH_KEY }} 
         script: |
           sudo docker pull anastasianb/foodgram:latest
-          scp -r infra/ ${{ secrets.USER }}@${{ secrets.HOST }}:~
-          scp -r frontend/ ${{ secrets.USER }}@${{ secrets.HOST }}:~
+          scp -r ./infra ${{ secrets.USER }}@${{ secrets.HOST }}:~
+          scp -r ./frontend ${{ secrets.USER }}@${{ secrets.HOST }}:~
           cd infra 
           sudo docker-compose stop
           sudo docker-compose rm foodgram
