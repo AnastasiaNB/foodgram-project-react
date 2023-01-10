@@ -1,10 +1,9 @@
+from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.serializers import SetPasswordSerializer
 from djoser.views import UserViewSet
-from food.models import (Amount, Favorites, Ingredient, Recipe, ShoppingCart,
-                         Tag)
 from rest_framework import status, views, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import (AllowAny, IsAuthenticated,
@@ -19,6 +18,8 @@ from .serializers import (CustomCreateUserSerializer, CustomUserSerializer,
                           FollowSerializer, IngredientSerializer,
                           RecipeGETSerializer, RecipePOSTSerializer,
                           ShoppingCartSerializer, TagSerializer)
+from food.models import (Amount, Favorites, Ingredient, Recipe, ShoppingCart,
+                         Tag)
 from users.models import Follow, User
 
 
@@ -45,18 +46,19 @@ class RecipeViewSet(viewsets.ModelViewSet):
         methods=['get'],
         permission_classes=[IsAuthenticated])
     def download_shopping_cart(self, request):
-        final_list = {}
+        final_list = []
         ingredients = Amount.objects.filter(
             recipe__in_shopping_cart__user=request.user
-            ).select_related('ingredient').annotate(
-                name='ingredient__name',
-                measurement_unit='ingredient__measurement_units',
-                amount='amount')
+            ).select_related('ingredient', 'recipe').values(
+                'recipe__name', 'ingredient__measurement_unit').annotate(
+                    Sum('amount'))
         for item in ingredients:
-            if item.name in final_list:
-                item.amount += item.amount
+            final_list.append(
+                f"{item['recipe__name']}, \
+                    {item['amount__sum']}, \
+                        {item['ingredient__measurement_unit']}")
         response = HttpResponse(
-            final_list.items(),
+            final_list,
             content_type='application/text charset=utf-8')
         response[
             'Content-Disposition'
