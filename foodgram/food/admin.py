@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Recipe, Ingredient, Tag, Amount, Favorites
+from .models import Amount, Favorites, Ingredient, Recipe, Tag 
 
 
 class AmountInline(admin.StackedInline):
