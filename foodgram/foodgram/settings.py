@@ -158,3 +158,5 @@ DJOSER = {
         },
 }
 
+SEARCH_PARAM = 'name'
+
