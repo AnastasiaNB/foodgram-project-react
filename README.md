@@ -48,6 +48,6 @@
 #### создания суперпользователя.
 - ```sudo docker-compose exec foodgram python manage.py createsuperuser```
 #### Для проверки:
-ip сервера - 51.250.72.46
-Суперюзер: логин - admin, пароль - admin1234
+ - ip сервера - 51.250.72.46
+- Суперюзер: логин - admin, пароль - admin1234
 
