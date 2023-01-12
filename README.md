@@ -3,7 +3,18 @@
 ![badge](https://github.com/AnastasiaNB/foodgram-project-react/actions/workflows/main.yml/badge.svg)
 
 ## Cтек технологий:
-Python Django Django REST Framework PostgreSQL JWT Nginx gunicorn Docker Docker-compose DockerHub GitHubActions Yandex.Cloud
+- Python
+- Django
+- Django REST Framework 
+- PostgreSQL 
+- JWT
+- Nginx 
+- gunicorn 
+- Docker 
+- Docker-compose 
+- DockerHub 
+- GitHubActions 
+- Yandex.Cloud
 
 ## Описание
 Сайт Foodgram, «Продуктовый помощник». На этом сервисе пользователи могут публиковать рецепты, подписываться на публикации других пользователей, добавлять понравившиеся рецепты в список «Избранное», а перед походом в магазин скачивать сводный список продуктов, необходимых для приготовления одного или нескольких выбранных блюд.
