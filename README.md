@@ -34,6 +34,9 @@
 - DB_NAME - postgres (по умолчанию)
 - POSTGRES_USER - postgres (по умолчанию)
 - POSTGRES_PASSWORD - postgres (по умолчанию)
+- DJANGO_SUPERUSER_EMAIL - email для создание суперюзера
+- DJANGO_SUPERUSER_USERNAME - логин для суперюзера
+- DJANGO_SUPERUSER_PASSWORD - пароль для суперюзера
 #### Установите Docker и Docker-compose:
 - ```sudo apt install docker.io```
 - ```sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o usr/local/bin/docker-compose```
@@ -45,7 +48,7 @@
 - ```sudo docker-compose exec foodgram python manage.py migrate --noinput```
 #### для загрузки данных ингредиентов и тегов;
 - ```sudo docker-compose exec foodgram python manage.py load_data```
-#### создания суперпользователя.
+#### создания суперюзера.
 - ```sudo docker-compose exec foodgram python manage.py createsuperuser```
 #### Для проверки:
  - ip сервера - 51.250.72.46
