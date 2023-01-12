@@ -4,13 +4,13 @@ from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.serializers import SetPasswordSerializer
 from djoser.views import UserViewSet
-from rest_framework import status, views, viewsets
+from rest_framework import status, views, viewsets, filters
 from rest_framework.decorators import action
 from rest_framework.permissions import (AllowAny, IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
 
-from .filters import IngredientFilter, RecipeFilter
+from .filters import RecipeFilter
 from .pagination import CustomPagination
 from .permissions import IsAuthorOrReadOnly
 from .serializers import (CustomCreateUserSerializer, CustomUserSerializer,
@@ -54,11 +54,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
                     Sum('amount'))
         for item in ingredients:
             final_list.append(
-                f"{item['ingredient__name']}, \
-                    {item['amount__sum']}, \
+                f"{item['ingredient__name']} \
+                    {item['amount__sum']} \
                         {item['ingredient__measurement_unit']}")
+        text = '\n'.join(final_list)
         response = HttpResponse(
-            final_list,
+            text,
             content_type='application/text charset=utf-8')
         response[
             'Content-Disposition'
@@ -70,7 +71,7 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     permission_classes = [AllowAny, ]
-    filter_backends = [IngredientFilter]
+    filter_backends = (filters.SearchFilter,)
     search_fields = ('^name',)
 
 
