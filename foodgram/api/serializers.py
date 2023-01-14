@@ -7,45 +7,46 @@ from food.models import (Amount, Favorites, Ingredient, Recipe, ShoppingCart,
 from rest_framework import serializers
 
 from users.models import Follow, User
+from users.serializers import CustomCreateUserSerializer, CustomUserSerializer
 
 
-class CustomCreateUserSerializer(UserCreateSerializer):
-    """Сериализатор для создания пользователей"""
-    class Meta:
-        model = User
-        fields = (
-            'email', 'id',
-            'username', 'first_name',
-            'last_name', 'password',
-            )
+# class CustomUserSerializer(UserSerializer):
+#     """Сериализатор для получения пользователей"""
+#     is_subscribed = serializers.SerializerMethodField()
+
+#     class Meta:
+#         model = User
+#         fields = (
+#             'email', 'id',
+#             'username', 'first_name',
+#             'last_name', 'is_subscribed')
+
+#     def get_is_subscribed(self, obj):
+#         user = self.context.get('request').user
+#         if user.is_anonymous:
+#             return False
+#         return Follow.objects.filter(user=user, follower=obj.id).exists()
 
 
-class CustomUserSerializer(UserSerializer):
-    """Сериализатор для получения пользователей"""
-    is_subscribed = serializers.SerializerMethodField()
-
-    class Meta:
-        model = User
-        fields = (
-            'email', 'id',
-            'username', 'first_name',
-            'last_name', 'is_subscribed')
-
-    def get_is_subscribed(self, obj):
-        user = self.context.get('request').user
-        if user.is_anonymous:
-            return False
-        return Follow.objects.filter(user=user, follower=obj.id).exists()
+# class CustomCreateUserSerializer(UserCreateSerializer):
+#     """Сериализатор для создания пользователей"""
+#     class Meta:
+#         model = User
+#         fields = (
+#             'email', 'id',
+#             'username', 'first_name',
+#             'last_name', 'password',
+#             )
 
 
 class AmountSerializer(serializers.ModelSerializer):
     """Вспомогательный сериализатор для создания
      и отображения ингредиентов рецепта."""
-    id = serializers.ReadOnlydField(
+    id = serializers.ReadOnlyField(
         source='ingredient.id')
-    measure_units = ReadOnlydField(
+    measure_units = serializers.ReadOnlyField(
         source='ingredient.measurement_unit')
-    name = serializers.ReadOnlydField(
+    name = serializers.ReadOnlyField(
         source='ingredient.name')
 
     class Meta:

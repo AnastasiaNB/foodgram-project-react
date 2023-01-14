@@ -13,7 +13,7 @@ from rest_framework.response import Response
 from .filters import RecipeFilter
 from .pagination import CustomPagination
 from .permissions import IsAuthorOrReadOnly
-from .serializers import (CustomCreateUserSerializer, CustomUserSerializer,
+from .serializers import (
                           FavoriteSerializer, FollowCreateSerializer,
                           FollowSerializer, IngredientSerializer,
                           RecipeGETSerializer, RecipePOSTSerializer,
@@ -21,6 +21,7 @@ from .serializers import (CustomCreateUserSerializer, CustomUserSerializer,
 from food.models import (Amount, Favorites, Ingredient, Recipe, ShoppingCart,
                          Tag)
 from users.models import Follow, User
+from users.serializers import CustomCreateUserSerializer, CustomUserSerializer
 
 
 class PostDeleteViewSet(viewsets.mixins.CreateModelMixin,
