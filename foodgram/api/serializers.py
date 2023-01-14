@@ -41,30 +41,16 @@ class CustomUserSerializer(UserSerializer):
 class AmountSerializer(serializers.ModelSerializer):
     """Вспомогательный сериализатор для создания
      и отображения ингредиентов рецепта."""
-    recipe = serializers.PrimaryKeyRelatedField(read_only=True)
-    id = serializers.PrimaryKeyRelatedField(
-        source='ingredient',
-        queryset=Ingredient.objects.all())
-    amount = serializers.IntegerField(write_only=True, min_value=1)
-    measure_units = serializers.SerializerMethodField()
-    name = serializers.SerializerMethodField()
+    id = serializers.ReadOnlydField(
+        source='ingredient.id')
+    measure_units = ReadOnlydField(
+        source='ingredient.measurement_unit')
+    name = serializers.ReadOnlydField(
+        source='ingredient.name')
 
     class Meta:
         model = Amount
-        fields = ('id', 'name', 'measure_units', 'amount', 'recipe')
-
-    def get_measure_units(self, obj):
-        ingredient = Ingredient.objects.get(id=obj.id)
-        return ingredient.measurement_unit
-
-    def get_name(self, obj):
-        ingredient = Ingredient.objects.get(id=obj.id)
-        return ingredient.name
-
-    def to_representation(self, obj):
-        representation = super().to_representation(obj)
-        representation['amount'] = obj.amount
-        return representation
+        fields = ('id', 'name', 'measure_units', 'amount')
 
 
 class RecipePOSTSerializer(serializers.ModelSerializer):
