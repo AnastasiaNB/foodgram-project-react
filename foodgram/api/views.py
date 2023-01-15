@@ -55,9 +55,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
                     Sum('amount'))
         for item in ingredients:
             final_list.append(
-                f"{item['ingredient__name']} \
-                    {item['amount__sum']} \
-                        {item['ingredient__measurement_unit']}")
+                f"{item['ingredient__name']} - {item['amount__sum']}  {item['ingredient__measurement_unit']}")
         text = '\n'.join(final_list)
         response = HttpResponse(
             text,

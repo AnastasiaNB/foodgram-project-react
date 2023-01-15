@@ -19,7 +19,10 @@ class Tag(models.Model):
 
 class Ingredient(models.Model):
     name = models.CharField(max_length=50, verbose_name='Название ингредиента')
-    measurement_unit = models.CharField(max_length=10, default='г')
+    measurement_unit = models.CharField(
+        max_length=10, default='г',
+        verbose_name='Единицы измерения'
+    )
 
     class Meta:
         verbose_name = 'Ингредиент'
@@ -59,6 +62,9 @@ class Recipe(models.Model):
     pub_date = models.DateTimeField(
         verbose_name='Дата публикации',
         auto_now_add=True)
+    # favorite_count = models.PositiveIntegerField(
+    #     default=0, verbose_name='Добавления в избранное'
+    # )
 
     class Meta:
         verbose_name = 'Рецепт'
@@ -72,11 +78,12 @@ class Recipe(models.Model):
 class Amount(models.Model):
     recipe = models.ForeignKey(
         Recipe, on_delete=models.CASCADE,
-        related_name='ingredient', null=True)
+        related_name='ingredient', null=True,
+        verbose_name='Рецепт')
     ingredient = models.ForeignKey(
         Ingredient, on_delete=models.CASCADE,
-        related_name='amount')
-    amount = models.IntegerField()
+        related_name='amount', verbose_name='Ингредиент')
+    amount = models.IntegerField(verbose_name='Количество')
 
     class Meta:
         verbose_name = 'Рецепт-ингредиент'
@@ -86,10 +93,10 @@ class Amount(models.Model):
 class Favorites(models.Model):
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, null=True,
-        related_name='favorite')
+        related_name='favorite', verbose_name='Пользователь')
     recipe = models.ForeignKey(
         Recipe, on_delete=models.CASCADE, null=True,
-        related_name='in_favorites')
+        related_name='in_favorites', verbose_name='Рецепт')
 
     class Meta:
         verbose_name = 'Рецепт в избранном'
@@ -99,10 +106,12 @@ class Favorites(models.Model):
 class ShoppingCart(models.Model):
     user = models.ForeignKey(
         User, on_delete=models.CASCADE,
-        related_name='shopping_cart')
+        related_name='shopping_cart',
+        verbose_name='Пользователь')
     recipe = models.ForeignKey(
         Recipe, on_delete=models.CASCADE,
-        related_name='in_shopping_cart')
+        related_name='in_shopping_cart',
+        verbose_name='Рецепт')
 
     class Meta:
         verbose_name = 'Рецепт в корзине'

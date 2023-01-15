@@ -1,5 +1,3 @@
-from djoser.serializers import (UserCreateSerializer,
-                                UserSerializer)
 from drf_extra_fields.fields import Base64ImageField
 
 from food.models import (Amount, Favorites, Ingredient, Recipe, ShoppingCart,
@@ -7,51 +5,41 @@ from food.models import (Amount, Favorites, Ingredient, Recipe, ShoppingCart,
 from rest_framework import serializers
 
 from users.models import Follow, User
-from users.serializers import CustomCreateUserSerializer, CustomUserSerializer
+from users.serializers import CustomUserSerializer
 
 
-# class CustomUserSerializer(UserSerializer):
-#     """Сериализатор для получения пользователей"""
-#     is_subscribed = serializers.SerializerMethodField()
-
-#     class Meta:
-#         model = User
-#         fields = (
-#             'email', 'id',
-#             'username', 'first_name',
-#             'last_name', 'is_subscribed')
-
-#     def get_is_subscribed(self, obj):
-#         user = self.context.get('request').user
-#         if user.is_anonymous:
-#             return False
-#         return Follow.objects.filter(user=user, follower=obj.id).exists()
-
-
-# class CustomCreateUserSerializer(UserCreateSerializer):
-#     """Сериализатор для создания пользователей"""
-#     class Meta:
-#         model = User
-#         fields = (
-#             'email', 'id',
-#             'username', 'first_name',
-#             'last_name', 'password',
-#             )
+class RuBase64ImageField(Base64ImageField):
+    INVALID_FILE_MESSAGE = "Невозможно загрузить изображение"
+    INVALID_TYPE_MESSAGE = "Невозможно определить тип изображения"
 
 
 class AmountSerializer(serializers.ModelSerializer):
     """Вспомогательный сериализатор для создания
      и отображения ингредиентов рецепта."""
-    id = serializers.ReadOnlyField(
-        source='ingredient.id')
-    measure_units = serializers.ReadOnlyField(
-        source='ingredient.measurement_unit')
-    name = serializers.ReadOnlyField(
-        source='ingredient.name')
+    recipe = serializers.PrimaryKeyRelatedField(read_only=True)
+    id = serializers.PrimaryKeyRelatedField(
+        source='ingredient',
+        queryset=Ingredient.objects.all())
+    amount = serializers.IntegerField(write_only=True, min_value=1)
+    measure_units = serializers.SerializerMethodField()
+    name = serializers.SerializerMethodField()
 
     class Meta:
         model = Amount
-        fields = ('id', 'name', 'measure_units', 'amount')
+        fields = ('id', 'name', 'measure_units', 'amount', 'recipe')
+
+    def get_measure_units(self, obj):
+        ingredient = Ingredient.objects.get(id=obj.ingredient.id)
+        return ingredient.measurement_unit
+
+    def get_name(self, obj):
+        ingredient = Ingredient.objects.get(id=obj.ingredient.id)
+        return ingredient.name
+
+    def to_representation(self, obj):
+        representation = super().to_representation(obj)
+        representation['amount'] = obj.amount
+        return representation
 
 
 class RecipePOSTSerializer(serializers.ModelSerializer):
@@ -61,7 +49,7 @@ class RecipePOSTSerializer(serializers.ModelSerializer):
     tags = serializers.PrimaryKeyRelatedField(
         many=True,
         queryset=Tag.objects.all())
-    image = Base64ImageField()
+    image = RuBase64ImageField()
 
     class Meta:
         model = Recipe
